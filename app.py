@@ -1,11 +1,54 @@
-#-----------------------------------------------------------------------------------------
-# Copyright (c) Microsoft Corporation. All rights reserved.
-# Licensed under the MIT License. See LICENSE in the project root for license information.
-#-----------------------------------------------------------------------------------------
+print("HELLO WANDILE MAJOLA!")
+print("AT THE END WE'LL WIN")
 
-from flask import Flask
-app = Flask(__name__)
+import json
+from datetime import datetime
 
-@app.route("/")
-def hello():
-    return app.send_static_file("index.html")
+class ConservationSystem:
+    def __init__(self):
+        self.actions = []
+
+    def log_action(self, action_type, location, description):
+        action = {
+            "timestamp": datetime.now().isoformat(),
+            "type": action_type,
+            "location": location,
+            "description": description
+        }
+        self.actions.append(action)
+        print(f"✅ Logged: {description} in {location}")
+
+    def save_to_file(self, filename="conservation_data.json"):
+        with open(filename, "w") as f:
+            json.dump(self.actions, f, indent=4)
+        print(f"💾 Saved all actions to '{filename}'.")
+
+    def summarize_actions(self):
+        print("\n🌱 Conservation Impact Summary:")
+        summary = {}
+        for action in self.actions:
+            a_type = action["type"]
+            summary[a_type] = summary.get(a_type, 0) + 1
+
+        for action_type, count in summary.items():
+            print(f" - {action_type}: {count} times")
+
+    def load_from_file(self, filename="conservation_data.json"):
+        try:
+            with open(filename, "r") as f:
+                self.actions = json.load(f)
+            print(f"📂 Loaded actions from '{filename}'.")
+        except FileNotFoundError:
+            print(f"⚠️ No file named '{filename}' found. Starting fresh.")
+
+# --- Example usage ---
+if __name__ == "__main__":
+    system = ConservationSystem()
+    system.load_from_file()
+
+    system.log_action("Tree Planting", "Soweto", "Planted 30 trees near the river bank.")
+    system.log_action("Recycling Campaign", "Braamfontein", "Collected 200 kg of plastic.")
+    system.log_action("Educational Outreach", "UJ Campus", "Hosted a workshop on sustainability.")
+
+    system.summarize_actions()
+    system.save_to_file()
